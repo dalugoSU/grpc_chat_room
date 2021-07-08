@@ -1,0 +1,25 @@
+syntax='proto3';
+
+service Chat {
+  rpc messageStream(Nothing) returns (stream sendMessageRequest);
+  rpc sendMessage(sendMessageRequest) returns(Nothing);
+  rpc connectedUser(connectionRequest) returns (connectionConfirm);
+}
+
+message Nothing {
+  bool nothing = 1;
+}
+
+message sendMessageRequest {
+  string sentMessage = 1;
+  string userName = 2;
+}
+
+message connectionRequest {
+  string userName = 1;
+}
+
+message connectionConfirm {
+  bool connected = 1;
+}
+
