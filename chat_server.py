@@ -42,7 +42,7 @@ class ChatServer:
                 last_user += 1
 
     def run(self):
-        """ Handle client clone request, 2 thread, one for receive and one for collect """
+        """ Run Server """
         grpc_thread = threading.Thread(target=self._grpc_server)
         handler_thread = threading.Thread(target=self._message_handler)
         user_thread = threading.Thread(target=self._user_handler)
