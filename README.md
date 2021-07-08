@@ -5,6 +5,11 @@ chat_protobufs folder contains services and messages used.
 The server code file handles connection, checks and logging. A separate RPC file handles requests and responses.
 gRPC handles the threads.
 
+## What it looks Like ##
+'''
+![Alt text](examples/chat_example.JPG?raw=true "Example chat and logs")
+'''
+
 ## What you Need ##
 
 ```
