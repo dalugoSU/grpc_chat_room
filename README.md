@@ -5,10 +5,10 @@ chat_protobufs folder contains services and messages used.
 The server code file handles connection, checks and logging. A separate RPC file handles requests and responses.
 gRPC handles the threads.
 
-## Run The Code ##
+## What you Need ##
 
 ```
-Needs: grpcio and grpc-tools. 
+Needs: grpcio and grpc-tools
 ```
 
 ## Boot Server ##
