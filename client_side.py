@@ -3,6 +3,7 @@ from chat_protobufs.chatroom_pb2_grpc import ChatStub
 import tkinter as tk
 import logging
 import threading
+import grpc
 
 
 logging.basicConfig(level=logging.INFO)
@@ -20,12 +21,14 @@ class ClientSide:
         self._message = ''
         self._grpc_response = None
         self.stub = stub
+        self._input_text = None
 
     def run(self):
         self._root = tk.Tk()
         threading.Thread(target=self._get_messages, daemon=True).start()
         self._main_window()
         self._main_frame()
+        self._input_text = tk.StringVar(self._root)
         logging.info("Loaded main frame no error")
         self._output_box()
         logging.info("Loaded output screen no Error")
@@ -51,7 +54,7 @@ class ClientSide:
                            relwidth=0.90, relheight=0.80)
 
     def _input(self):
-        self._input_box = tk.Text(self._root_main_frame, bg="white", font=(None, 12))
+        self._input_box = tk.Entry(self._root_main_frame, bg="white", font=(None, 12), textvariable=self._input_text)
         self._input_box.place(relx=0.05, rely=0.87,
                               relwidth=0.65, relheight=0.1)
 
@@ -61,29 +64,39 @@ class ClientSide:
                                       command=lambda: [self._get_input(), self._clear_box()])
         self._send_button.place(relx=0.75, rely=0.87,
                                 relwidth=0.20, relheight=0.1)
-        self._send_button.bind('<Return>', lambda: [self._get_input(), self._clear_box()])
 
     def _get_input(self):
-        self._message = self._input_box.get("1.0", tk.END)
+        self._message = self._input_text.get()
         logging.info(f"[CLIENT SIDE]: input message: {self._message}")
-        message_request = sendMessageRequest(sentMessage=self._message, userName=self._user_name)
-        self._grpc_response = self.stub.sendMessage(message_request)
+        try:
+            message_request = sendMessageRequest(sentMessage=self._message, userName=self._user_name)
+            self._grpc_response = self.stub.sendMessage(message_request)
+        except grpc.RpcError:
+            logging.info("[CLIENT SIDE]: Server is down")
+            self._output.insert(tk.END, f"\n\nServer is down\n\n")
 
     def _get_messages(self):
         logging.info("[CLIENT SIDE: Listening for messages]")
         request = Nothing(nothing=True)
-        for _message in self.stub.messageStream(request):
-            logging.info("[CLIENT SIDE: Iterating through messages in server")
-            self._output.insert(tk.END, f"{_message.userName}: {_message.sentMessage}")
+        try:
+            for _message in self.stub.messageStream(request):
+                logging.info("[CLIENT SIDE: Iterating through messages in server")
+                self._output.insert(tk.END, f"{_message.userName}: {_message.sentMessage}\n")
+        except grpc.RpcError:
+            logging.info("[CLIENT SIDE]: Server is down")
+            self._output.insert(tk.END, f"\n\nServer is down\n\n")
 
     def _clear_box(self):
-        self._input_box.delete("1.0", tk.END)
+        self._input_box.delete(0, 'end')
         logging.info("[CLIENT SIDE]: Cleared input box")
 
     def _create_connection(self):
-        request = connectionRequest(userName=self._user_name)
-        response = self.stub.connectedUser(request)
-        self._output.insert(tk.END, response)
-        self._output.insert(tk.END, "\n\n")
-        logging.info(f"[CLIENT SIDE: Created connection {self._user_name}]")
-
+        try:
+            request = connectionRequest(userName=self._user_name)
+            response = self.stub.connectedUser(request)
+            self._output.insert(tk.END, response)
+            self._output.insert(tk.END, "\n\n")
+            logging.info(f"[CLIENT SIDE: Created connection {self._user_name}]")
+        except grpc.RpcError:
+            logging.info("[CLIENT SIDE]: Server is down")
+            self._output.insert(tk.END, f"\n\nServer is down\n\n")
