@@ -5,7 +5,7 @@ import grpc
 
 from concurrent.futures import ThreadPoolExecutor
 from chat_protobufs.chatroom_pb2_grpc import add_ChatServicer_to_server
-from grpc_servicer import InfoService
+from chat_protobufs.grpc_servicer import InfoService
 
 
 logging.basicConfig(level=logging.INFO)

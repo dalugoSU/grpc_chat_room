@@ -1,3 +1,5 @@
+import time
+
 from chat_protobufs.chatroom_pb2 import sendMessageRequest, Nothing, connectionRequest
 from chat_protobufs.chatroom_pb2_grpc import ChatStub
 import tkinter as tk
@@ -55,10 +57,15 @@ class ClientSide:
 
     def _input(self):
         self._input_box = tk.Entry(self._root_main_frame, bg="white", font=(None, 12), textvariable=self._input_text)
+        self._input_box.bind('<Return>', self._on_enter)
         self._input_box.place(relx=0.05, rely=0.87,
                               relwidth=0.65, relheight=0.1)
 
-    def _send(self):
+    def _on_enter(self, event=None):
+        self._get_input()
+        self._clear_box()
+
+    def _send(self, event=None):
         self._send_button = tk.Button(self._root_main_frame, text='Send', bg="white",
                                       font=(None, 10),
                                       command=lambda: [self._get_input(), self._clear_box()])
@@ -71,8 +78,8 @@ class ClientSide:
         try:
             message_request = sendMessageRequest(sentMessage=self._message, userName=self._user_name)
             self._grpc_response = self.stub.sendMessage(message_request)
-        except grpc.RpcError:
-            logging.info("[CLIENT SIDE]: Server is down")
+        except grpc.RpcError as e:
+            logging.info(f"[CLIENT SIDE]: Server is down -> {e}")
             self._output.insert(tk.END, f"\n\nServer is down\n\n")
 
     def _get_messages(self):
@@ -82,8 +89,8 @@ class ClientSide:
             for _message in self.stub.messageStream(request):
                 logging.info("[CLIENT SIDE: Iterating through messages in server")
                 self._output.insert(tk.END, f"{_message.userName}: {_message.sentMessage}\n")
-        except grpc.RpcError:
-            logging.info("[CLIENT SIDE]: Server is down")
+        except grpc.RpcError as e:
+            logging.info(f"[CLIENT SIDE]: Server is down -> {e}")
             self._output.insert(tk.END, f"\n\nServer is down\n\n")
 
     def _clear_box(self):
@@ -97,6 +104,6 @@ class ClientSide:
             self._output.insert(tk.END, response)
             self._output.insert(tk.END, "\n\n")
             logging.info(f"[CLIENT SIDE: Created connection {self._user_name}]")
-        except grpc.RpcError:
-            logging.info("[CLIENT SIDE]: Server is down")
+        except grpc.RpcError as e:
+            logging.info(f"[CLIENT SIDE]: Server is down -> {e}")
             self._output.insert(tk.END, f"\n\nServer is down\n\n")
