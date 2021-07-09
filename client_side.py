@@ -116,7 +116,10 @@ class ClientSide:
             for _user in self.stub.messageStream(request):
                 self._connected_frame.insert(tk.END, f"{str(_user).replace('sentMessage', '').replace(':', '')}\n")
         except grpc.RpcError as rpc_error:
-            if rpc_error.code() == grpc.StatusCode.CANCELLED:
+            if rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
+                logging.info("[CLIENT SIDE]: Server is Down")
+                pass
+            elif rpc_error.code() == grpc.StatusCode.CANCELLED:
                 pass
             else:
                 logging.info(f"[CLIENT SIDE]: Error at _get_messages() CLIENT -> {rpc_error}")
@@ -139,7 +142,11 @@ class ClientSide:
 
     def _on_close(self):
         self._do_once = True
-        request = onCloseRequest(userName=self._user_name)
-        response = self.stub.onDisconnection(request)
-        self._output.insert(tk.END, f"\n{self._user_name} disconnected: {response.disconnected}")
-        self._root.destroy()
+        try:
+            request = onCloseRequest(userName=self._user_name)
+            response = self.stub.onDisconnection(request)
+            self._output.insert(tk.END, f"\n{self._user_name} disconnected: {response.disconnected}")
+        except grpc.RpcError as rpc_error:
+            if rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
+                logging.info("[CLIENT SIDE]: Closing window. Server Down")
+                self._root.destroy()
