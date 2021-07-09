@@ -4,6 +4,7 @@ service Chat {
   rpc messageStream(Nothing) returns (stream sendMessageRequest);
   rpc sendMessage(sendMessageRequest) returns(Nothing);
   rpc connectedUser(connectionRequest) returns (connectionConfirm);
+  rpc onDisconnection(onCloseRequest) returns (disconnectionConfirm);
 }
 
 message Nothing {
@@ -23,3 +24,10 @@ message connectionConfirm {
   bool connected = 1;
 }
 
+message onCloseRequest {
+  string userName = 1;
+}
+
+message disconnectionConfirm {
+  bool disconnected = 1;
+}

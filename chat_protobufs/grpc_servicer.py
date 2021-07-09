@@ -1,6 +1,6 @@
 import logging
 from chat_protobufs.chatroom_pb2_grpc import ChatServicer
-from chat_protobufs.chatroom_pb2 import Nothing, connectionConfirm, sendMessageRequest
+from chat_protobufs.chatroom_pb2 import Nothing, connectionConfirm, sendMessageRequest, disconnectionConfirm
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,6 +21,7 @@ class InfoService(ChatServicer):
     def __init__(self):
         self.message_handled = []
         self.connected_users = []
+        self.disconnected_users = []
 
     def messageStream(self, request, context):
         last_message = 0
@@ -48,4 +49,11 @@ class InfoService(ChatServicer):
             return connectionConfirm(connected=True)
         else:
             return connectionConfirm(connnected=False)
+
+
+    def onDisconnection(self, request, context):
+        incoming = request.userName
+        self.disconnected_users.append(incoming)
+        response = disconnectionConfirm(disconnected=True)
+        return response
 

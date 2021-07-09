@@ -35,10 +35,19 @@ class ChatServer:
                 last_message += 1
 
     def _user_handler(self):
+        logging.info(f"[CHAT SERVER]: Listening for connections")
         last_user = 0
         while True:
             while len(self._grpc_service.connected_users) > last_user:
-                logging.info(f"[CHAT SERVER]: Got user {self._grpc_service.connected_users[last_user]}")
+                logging.info(f"[CHAT SERVER]: Connected user {self._grpc_service.connected_users[last_user]}")
+                last_user += 1
+
+    def _disconnected_user_handler(self):
+        logging.info("[CHAT SERVER]: Listening for disconnections")
+        last_user = 0
+        while True:
+            while len(self._grpc_service.disconnected_users) > last_user:
+                logging.info(f"[CHAT SERVER]: Disconnected user: {self._grpc_service.disconnected_users[last_user]}")
                 last_user += 1
 
     def run(self):
@@ -46,11 +55,15 @@ class ChatServer:
         grpc_thread = threading.Thread(target=self._grpc_server)
         handler_thread = threading.Thread(target=self._message_handler)
         user_thread = threading.Thread(target=self._user_handler)
+        disconnection_handler = threading.Thread(target=self._disconnected_user_handler)
         handler_thread.start()
         time.sleep(5)
         grpc_thread.start()
         time.sleep(5)
         user_thread.start()
+        time.sleep(5)
+        disconnection_handler.start()
         grpc_thread.join()
         handler_thread.join()
         user_thread.join()
+        disconnection_handler.join()
