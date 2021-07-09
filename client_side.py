@@ -4,6 +4,7 @@ import tkinter as tk
 import logging
 import threading
 import grpc
+import time
 
 
 logging.basicConfig(level=logging.INFO)
