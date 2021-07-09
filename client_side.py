@@ -101,7 +101,6 @@ class ClientSide:
         request = Nothing(nothing=True)
         try:
             for _message in self.stub.messageStream(request):
-                logging.info("[CLIENT SIDE]: Iterating through messages in server")
                 self._output.insert(tk.END, f"{_message.userName}: {_message.sentMessage}\n")
         except grpc.RpcError as rpc_error:
             if rpc_error.code() == grpc.StatusCode.CANCELLED:
@@ -115,7 +114,6 @@ class ClientSide:
         request = Nothing(nothing=False)
         try:
             for _user in self.stub.messageStream(request):
-                logging.info("[CLIENT SIDE]: Iterating through users in server")
                 self._connected_frame.insert(tk.END, f"{str(_user).replace('sentMessage', '').replace(':', '')}\n")
         except grpc.RpcError as rpc_error:
             if rpc_error.code() == grpc.StatusCode.CANCELLED:
