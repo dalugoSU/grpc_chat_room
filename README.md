@@ -11,16 +11,17 @@ gRPC handles the threads.
 '''
 
 ## What you Need ##
-
-```
 Needs: grpcio and grpc-tools
-run: pip install -r requirements.txt
+```
+pip install -r requirements.txt
 ```
 
 ## Client Config ##
+client_config.json needs to be updated with the server IP
+if you want to connect over LAN, change it to your wireless connection's IPv4 number for clients on your network; or use server IP.
+If you want to try it out in your own machine, change to:
 ```
-client_config.json needs to be updated with the server IP. If you want to try it out in your own machine, change to 127.0.0.1:50052
-if you want to connect over LAN, change it to your wireless connection's IPv4 number
+127.0.0.1:50052
 ```
 
 ## Boot Server ##
