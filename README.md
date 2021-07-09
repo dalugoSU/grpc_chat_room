@@ -17,6 +17,12 @@ Needs: grpcio and grpc-tools
 run: pip install -r requirements.txt
 ```
 
+## Client Config ##
+```
+client_config.json needs to be updated with the server IP. If you want to try it out in your own machine, change to 127.0.0.1:50052
+if you want to connect over LAN, change it to your wireless connection's IPv4 number
+```
+
 ## Boot Server ##
 server is booted with a config file containing the server address and port
 ```
