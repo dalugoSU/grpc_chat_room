@@ -94,7 +94,7 @@ class ClientSide:
             if rpc_error.code() == grpc.StatusCode.CANCELLED:
                 pass
             else:
-                logging.info(f"[CLIENT SIDE]: Error at _get_messages() CLIENT -> {e}")
+                logging.info(f"[CLIENT SIDE]: Error at _get_messages() CLIENT -> {rpc_error}")
                 self._output.insert(tk.END, f"\n\nServer is down\n\n")
 
     def _clear_box(self):
@@ -118,4 +118,3 @@ class ClientSide:
         response = self.stub.onDisconnection(request)
         self._output.insert(tk.END, f"\n{self._user_name} disconnected: {response.disconnected}")
         self._root.destroy()
-
