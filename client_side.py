@@ -23,38 +23,50 @@ class ClientSide:
         self.stub = stub
         self._input_text = None
         self._do_once = False
+        self._connected_frame = None
+
 
     def run(self):
         self._root = tk.Tk()
-        threading.Thread(target=self._get_messages, daemon=True).start()
         self._main_window()
         self._main_frame()
         self._input_text = tk.StringVar(self._root)
         logging.info("Loaded main frame no error")
         self._output_box()
+        self._connected_user_frame()
+        time.sleep(1)
         logging.info("Loaded output screen no Error")
         self._input()
         self._send()
         logging.info("Initialized No Error")
         self._output.insert(tk.END, f"Welcome {self._user_name} to the Janky ChatRoom\n")
+        self._connected_frame.insert(tk.END, f"  ----Online----\n\n", "center")
         self._create_connection()
+        threading.Thread(target=self._get_messages).start()
+        threading.Thread(target=self._get_online_users).start()
         self._root.protocol("WM_DELETE_WINDOW", self._on_close)
         self._root.mainloop()
 
     def _main_window(self):
         self._root.title("Janky ChatRoom by Daniel Lugo")
-        self._root.minsize(500, 500)
-        self._root.maxsize(500, 500)
+        self._root.minsize(600, 600)
+        self._root.maxsize(600, 600)
 
     def _main_frame(self):
         self._root_main_frame = tk.Frame(self._root, bg="light blue")
         self._root_main_frame.pack(fill='both', expand=True)
 
+    def _connected_user_frame(self):
+        self._connected_frame = tk.Text(self._root, bg="white", font=(None, 12))
+        self._connected_frame.see(tk.END)
+        self._connected_frame.place(relx=0.72, rely=0.05,
+                                    relwidth=0.25, relheight=0.80)
+
     def _output_box(self):
-        self._output = tk.Text(self._root_main_frame, bg="light gray", font=(None, 12))
+        self._output = tk.Text(self._root_main_frame, bg="white", font=(None, 12))
         self._output.see(tk.END)
         self._output.place(relx=0.05, rely=0.05,
-                           relwidth=0.90, relheight=0.80)
+                           relwidth=0.65, relheight=0.80)
 
     def _input(self):
         self._input_box = tk.Entry(self._root_main_frame, bg="white", font=(None, 12), textvariable=self._input_text)
@@ -90,6 +102,20 @@ class ClientSide:
             for _message in self.stub.messageStream(request):
                 logging.info("[CLIENT SIDE]: Iterating through messages in server")
                 self._output.insert(tk.END, f"{_message.userName}: {_message.sentMessage}\n")
+        except grpc.RpcError as rpc_error:
+            if rpc_error.code() == grpc.StatusCode.CANCELLED:
+                pass
+            else:
+                logging.info(f"[CLIENT SIDE]: Error at _get_messages() CLIENT -> {rpc_error}")
+                self._output.insert(tk.END, f"\n\nServer is down\n\n")
+
+    def _get_online_users(self):
+        logging.info("[CLIENT SIDE]: Listening for connected users")
+        request = Nothing(nothing=False)
+        try:
+            for _user in self.stub.messageStream(request):
+                logging.info("[CLIENT SIDE]: Iterating through users in server")
+                self._connected_frame.insert(tk.END, f"{str(_user).replace('sentMessage', '').replace(':', '')}\n")
         except grpc.RpcError as rpc_error:
             if rpc_error.code() == grpc.StatusCode.CANCELLED:
                 pass
