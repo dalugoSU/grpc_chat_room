@@ -40,7 +40,7 @@ class ClientSide:
         self._input()
         self._send()
         logging.info("Initialized No Error")
-        self._output.insert(tk.END, f"Welcome {self._user_name} to the Janky ChatRoom\n")
+        self._output.insert(tk.END, f"Welcome {self._user_name} to the Janky ChatRoom\n\n\n")
         self._connected_frame.insert(tk.END, f"  ----Online----\n\n", "center")
         self._create_connection()
         threading.Thread(target=self._get_messages).start()
@@ -133,9 +133,8 @@ class ClientSide:
         try:
             request = connectionRequest(userName=self._user_name)
             response = self.stub.connectedUser(request)
-            self._output.insert(tk.END, response)
-            self._output.insert(tk.END, "\n\n")
-            logging.info(f"[CLIENT SIDE]: Created connection {self._user_name}")
+            if response.connected:
+                logging.info(f"[CLIENT SIDE]: Created connection {self._user_name}")
         except grpc.RpcError as e:
             logging.info(f"[CLIENT SIDE]: Error at _create_connection() CLIENT -> {e}")
             self._output.insert(tk.END, f"\n\nServer is down\n\n")
@@ -150,3 +149,6 @@ class ClientSide:
             if rpc_error.code() == grpc.StatusCode.UNAVAILABLE:
                 logging.info("[CLIENT SIDE]: Closing window. Server Down")
                 self._root.destroy()
+        finally:
+            self._root.destroy()
+
