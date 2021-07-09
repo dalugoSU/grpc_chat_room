@@ -14,6 +14,7 @@ gRPC handles the threads.
 
 ```
 Needs: grpcio and grpc-tools
+run: pip install -r requirements.txt
 ```
 
 ## Boot Server ##
