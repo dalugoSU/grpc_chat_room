@@ -33,9 +33,13 @@ python boot_server.py --connect server_config.json
 ## Boot a Client ##
 Boot clients with a config file containing the connection address and port. 
 Client can be booted with an username. Otherwise it will start you as anonymous
+No username:
 ```
-No username: python boot_client.py --connect client_config.json
-With username: python boot_client.py --user USERNAME --connect client_config.json
+python boot_client.py --connect client_config.json
+```
+With username:
+```
+python boot_client.py --user USERNAME --connect client_config.json
 ```
 
 All set! Send messages accross each client :D
