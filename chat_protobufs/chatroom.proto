@@ -1,33 +1,36 @@
 syntax='proto3';
 
 service Chat {
-  rpc messageStream(Nothing) returns (stream sendMessageRequest);
-  rpc sendMessage(sendMessageRequest) returns(Nothing);
-  rpc connectedUser(connectionRequest) returns (connectionConfirm);
-  rpc onDisconnection(onCloseRequest) returns (disconnectionConfirm);
+  // Services or Functions
+  rpc messageStream(Nothing) returns (stream sendMessageRequest);     // Streams Messages currently in server (Generator)
+  rpc sendMessage(sendMessageRequest) returns(Nothing);               // Send Message request returns dummy Object
+  rpc connectedUser(connectionRequest) returns (connectionConfirm);   // Request to "connect" and User on server
+  rpc onDisconnection(onCloseRequest) returns (disconnectionConfirm); // Send a disconnect user flag to server
 }
+
+// Objects sent between gRPC server to clients
 
 message Nothing {
   bool nothing = 1;
 }
 
-message sendMessageRequest {
-  string sentMessage = 1;
-  string userName = 2;
+message sendMessageRequest {    // "Request the server to broadcast this to clients
+  string sentMessage = 1;       // Message sent by user to server
+  string userName = 2;          // User name of user sending message
 }
 
 message connectionRequest {
-  string userName = 1;
+  string userName = 1;          // Once a new client connects we send a request to connect to the server
 }
 
 message connectionConfirm {
-  bool connected = 1;
+  bool connected = 1;            // Connection request confirmation response
 }
 
 message onCloseRequest {
-  string userName = 1;
+  string userName = 1;            // Tell server which user closed their process
 }
 
 message disconnectionConfirm {
-  bool disconnected = 1;
+  bool disconnected = 1;          // Disconnection request response from server
 }
