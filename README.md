@@ -24,6 +24,14 @@ If you want to try it out in your own machine, change to:
 127.0.0.1:50052
 ```
 
+## Server Config ##
+server_config.json needs to be updated with the server IP.
+if you want to connect over LAN, change it to your wireless connection's IPv4 number for clients on your network; or use server IP.
+If you want to try it out in your own machine, change to:
+```
+127.0.0.1:50052
+```
+
 ## Boot Server ##
 server is booted with a config file containing the server address and port.
 ```
